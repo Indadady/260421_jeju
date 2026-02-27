@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="ko" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>[북평초등학교] 제주 3박 4일 문화탐방 - 스마트 가이드</title>
+    
+    <!-- Google tag (gtag.js) - 구글 애널리틱스 추적 코드 추가 -->
+    <!-- 주의: 'G-YOUR_TRACKING_ID' 부분을 대표님의 실제 GA4 측정 ID로 변경해주세요 -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-YOUR_TRACKING_ID"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-YOUR_TRACKING_ID');
+    </script>
+
+    <!-- SEO & Open Graph (카톡 전송용 썸네일 필수 규칙 적용) -->
+    <meta name="description" content="북평초등학교 학생들을 위한 잊지 못할 제주도 3박 4일 문화탐방 스마트 가이드북">
+    <meta property="og:title" content="🌴 [북평초] 제주 문화탐방 가이드북">
+    <!-- 제주도 느낌이 물씬 나는 이미지로 교체 -->
+    <meta property="og:image" content="https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?q=80&w=1200&auto=format&fit=crop">
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet CSS (Map) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Jua&display=swap" rel="stylesheet">
+    <!-- FontAwesome -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/js/all.min.js"></script>
+
+    <style>
+        body { font-family: 'Noto Sans KR', sans-serif; background-color: #f8fafc; color: #1e293b; }
+        .font-title { font-family: 'Jua', sans-serif; } /* 초등학교 감성에 맞는 귀여운 타이틀 폰트 */
+        .hero-bg { 
+            background: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.5)), url('https://images.unsplash.com/photo-1588668214407-6ea9a6d8c272?q=80&w=2000&auto=format&fit=crop');
+            background-size: cover; background-position: center; background-attachment: fixed;
+        }
+        @media (max-width: 768px){ .hero-bg { background-attachment: scroll; } }
+        #map { height: 500px; width: 100%; border-radius: 1rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .animate-fade-in-up { animation: fadeInUp 0.8s ease-out forwards; }
+        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        section { scroll-margin-top: 80px; }
+        
+        /* Map Customization */
+        .custom-icon div {
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            transition: transform 0.2s;
+        }
+        .custom-icon div:hover {
+            transform: scale(1.1);
+            z-index: 100;
+        }
+    </style>
+</head>
+<body class="antialiased pb-20 md:pb-0">
+
+    <!-- 화면에만 보이고 인쇄할 때는 숨겨지는 메인 래퍼 시작 -->
+    <div class="print:hidden">
+
+    <!-- Header (Sticky Navigation) -->
+    <header class="bg-white/95 backdrop-blur-md shadow-md sticky top-0 z-50 transition-all duration-300">
+        <nav class="container mx-auto px-4 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 shrink-0">
+                <!-- 투어메이커 로고 규칙 적용 -->
+                <a href="http://tourmaker.kr" target="_blank">
+                    <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" alt="Tourmaker" class="h-8">
+                </a>
+                <span id="d-day-badge" class="hidden bg-orange-500 text-white text-[10px] px-2 py-0.5 rounded-full font-bold animate-pulse"></span>
+            </div>
+            
+            <!-- Desktop & Mobile Scrollable Menu -->
+            <div class="flex-1 overflow-x-auto no-scrollbar ml-4 md:ml-8">
+                <div class="flex items-center space-x-1 md:space-x-6 whitespace-nowrap pr-4">
+                    <a href="#home" class="px-3 py-2 text-sm font-bold text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors">홈</a>
+                    <a href="#highlights" class="px-3 py-2 text-sm font-bold text-orange-600 hover:text-orange-800 hover:bg-orange-50 rounded-lg transition-colors"><i class="fa-solid fa-star mr-1 text-yellow-400"></i>포인트</a>
+                    <a href="#preview" class="px-3 py-2 text-sm font-medium text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"><i class="fa-solid fa-book-open mr-1"></i>제주미리보기</a>
+                    <a href="#safety" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors">안전안내</a>
+                    <a href="#map-section" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors">여행동선</a>
+                    <a href="#schedule" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors">세부일정</a>
+                    <a href="#video" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors">영상자료</a>
+                    <a href="#check" class="px-3 py-2 text-sm font-medium text-slate-600 hover:text-orange-600 hover:bg-slate-50 rounded-lg transition-colors">준비물</a>
+                </div>
+            </div>
+
+            <button onclick="shareLink()" class="shrink-0 p-2 text-slate-500 hover:text-orange-600 ml-2"><i class="fa-solid fa-share-nodes text-xl"></i></button>
+        </nav>
+    </header>
+
+    <!-- Hero -->
+    <section id="home" class="hero-bg min-h-[60vh] flex items-center justify-center text-center px-4">
+        <div class="animate-fade-in-up text-white">
+            <span class="bg-orange-600/90 px-6 py-2 rounded-full text-lg md:text-xl font-bold mb-6 inline-block border border-white/20 shadow-lg font-title tracking-wide">🏫 북평초등학교 체험학습</span>
+            <h1 class="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg font-title">신나는 제주도<br><span class="text-yellow-400 font-bold">문화탐방 3박 4일</span></h1>
+            <p class="text-xl md:text-2xl text-white font-bold tracking-wide mb-2">2026. 04. 21(화) ~ 04. 24(금)</p>
+            <p class="text-sm md:text-base text-slate-200 font-medium tracking-wide">푸른 바다와 함께 꿈이 자라나는 특별한 여행!</p>
+        </div>
+    </section>
+
+    <!-- Highlights Section -->
+    <section id="highlights" class="py-12 bg-white -mt-8 rounded-t-3xl relative z-10 shadow-[0_-5px_20px_rgba(0,0,0,0.1)]">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <span class="text-orange-500 font-black tracking-widest text-xs uppercase">Special Points</span>
+                <h2 class="text-2xl md:text-3xl font-bold text-slate-800 mt-2 font-title">이번 체험학습의<br class="md:hidden"/> 3가지 핵심 포인트</h2>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl mx-auto">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-14 h-14 bg-teal-100 rounded-2xl flex items-center justify-center mb-4 text-3xl">✈️</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">설레는 비행, 제주로!</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        강원도를 떠나 <span class="text-teal-600 font-bold">원주공항에서 진에어</span>를 타고 아름다운 섬 제주도로 날아갑니다. 비행기를 타는 순간부터 우리들의 즐거운 모험이 시작됩니다.
+                    </p>
+                    <span class="inline-block bg-teal-600 text-white text-xs px-2 py-1 rounded font-bold">항공 이동</span>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-4 text-3xl">🐬</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">제주의 자연과 테마파크</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        청보리가 넘실대는 <span class="text-blue-600 font-bold">가파도 탐방</span>부터 환상적인 <span class="text-blue-600 font-bold">아쿠아플라넷</span>, 짜릿한 신화월드 테마파크까지! 제주의 매력을 100% 체험합니다.
+                    </p>
+                    <span class="inline-block bg-blue-500 text-white text-xs px-2 py-1 rounded font-bold">오감 만족 체험</span>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
+                    <div class="w-14 h-14 bg-green-100 rounded-2xl flex items-center justify-center mb-4 text-3xl">🛡️</div>
+                    <h3 class="text-xl font-bold text-slate-800 mb-2">안전하고 든든한 일정</h3>
+                    <p class="text-slate-600 text-sm leading-relaxed mb-4">
+                        최고급 <span class="text-green-600 font-bold">서귀포 신신호텔</span>에서의 편안한 휴식과 흑우불고기, 토종돼지주물럭 등 맛있는 영양 식단! 투어메이커의 밀착 케어로 <span class="text-green-600 font-bold">안전을 최우선</span>합니다.
+                    </p>
+                    <span class="inline-block bg-green-600 text-white text-xs px-2 py-1 rounded font-bold">안전 100% 보장</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- City Preview (Jeju Content) -->
+    <section id="preview" class="py-16 bg-slate-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <span class="text-teal-500 font-black tracking-widest text-xs uppercase">City Preview</span>
+                <h2 class="text-3xl font-bold text-slate-800 mt-2 font-title">탐방 지역 미리보기</h2>
+                <p class="text-slate-500 mt-2 text-sm">우리가 찾아가는 '제주도'는 어떤 곳일까요? 출발 전 미리 알아보아요!</p>
+            </div>
+            
+            <div class="max-w-4xl mx-auto bg-white rounded-3xl p-8 md:p-10 border border-slate-200 shadow-md relative overflow-hidden">
+                <div class="absolute top-0 right-0 opacity-10 text-[150px] leading-none pointer-events-none transform translate-x-4 -translate-y-4">🌴</div>
+                <h3 class="text-2xl font-bold text-slate-800 border-b-2 border-teal-100 pb-4 mb-6 font-title">
+                    세계자연유산, 제주특별자치도 <span class="text-base text-teal-500 font-medium ml-2 font-sans hidden md:inline-block">| 자연이 빚어낸 보물섬</span>
+                </h3>
+                
+                <div class="grid md:grid-cols-2 gap-8 relative z-10">
+                    <div>
+                        <h4 class="font-bold text-slate-800 flex items-center gap-2 mb-3 text-lg"><i class="fa-solid fa-volcano text-orange-600"></i> 신비로운 화산섬</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed text-justify">
+                            수백만 년 전 화산 폭발로 만들어진 제주도는 섬 한가운데 우뚝 솟은 한라산을 중심으로, 수많은 오름과 독특한 곶자왈(숲) 지대를 품고 있습니다. 에코랜드와 미로공원을 걸으며 제주의 숨 쉬는 자연을 직접 느껴볼 수 있답니다.
+                        </p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold text-slate-800 flex items-center gap-2 mb-3 text-lg"><i class="fa-solid fa-water text-blue-500"></i> 에메랄드빛 바다와 섬 속의 섬</h4>
+                        <p class="text-sm text-slate-600 leading-relaxed text-justify">
+                            이번 여행에서는 제주의 아름다운 해안선(이호테우 해변, 오조리 포구)은 물론, 배를 타고 '가파도'라는 섬 속의 섬에도 들어갑니다. 또한 아쿠아플라넷에서는 제주의 바다가 품고 있는 거대한 해양 생태계를 눈앞에서 마주하게 됩니다.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Safety & Bus Guide -->
+    <section id="safety" class="py-12 bg-white">
+        <div class="container mx-auto px-4">
+            <div class="max-w-5xl mx-auto mb-8">
+                <div class="bg-white rounded-2xl border border-teal-100 shadow-lg overflow-hidden">
+                    <div class="bg-teal-50 px-6 py-4 border-b border-teal-100 flex flex-wrap justify-between items-center gap-2">
+                        <h3 class="font-bold text-slate-800 text-lg flex items-center gap-2 font-title">
+                            <i class="fa-solid fa-shield-halved text-teal-500"></i> 탑승 수속 및 안전 수칙
+                        </h3>
+                        <span class="bg-teal-500 text-white text-xs px-3 py-1 rounded-full font-bold shadow-sm">집결: 원주공항</span>
+                    </div>
+                    
+                    <div class="p-6 md:p-8">
+                        <div class="bg-slate-50 rounded-xl p-4 mb-6 border border-slate-100">
+                            <h4 class="font-bold text-slate-800 mb-2 flex items-center gap-2"><i class="fa-solid fa-plane-departure text-orange-500"></i> 공항 & 버스 이동 가이드</h4>
+                            <p class="text-sm text-slate-600 leading-relaxed">
+                                제주 여행은 공항 수속부터 시작됩니다. <span class="text-red-500 font-bold">국내선 탑승을 위한 신분 확인 서류(학생증, 주민등록등본 등 학교 안내 참고)</span>를 반드시 지참해야 합니다. 현지에서는 전용버스로 쾌적하게 이동합니다.
+                            </p>
+                        </div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-center">
+                            <div class="bg-white rounded-xl p-4 border border-teal-100 shadow-sm">
+                                <div class="mb-2"><i class="fa-solid fa-id-card text-2xl text-teal-500"></i></div>
+                                <h4 class="font-bold text-slate-800 text-sm">신분증 챙기기</h4>
+                                <p class="text-[11px] text-slate-500 mt-1">비행기를 타기 위해<br>신분 확인 서류가 꼭 필요해요!</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-teal-100 shadow-sm">
+                                <div class="mb-2"><i class="fa-solid fa-seatbelt text-2xl text-teal-500"></i></div>
+                                <h4 class="font-bold text-slate-800 text-sm">항상 안전벨트</h4>
+                                <p class="text-[11px] text-slate-500 mt-1">비행기에서도, 현지 버스에서도<br><span class="text-red-500 font-bold">안전벨트</span>는 필수입니다.</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-teal-100 shadow-sm">
+                                <div class="mb-2"><i class="fa-solid fa-users text-2xl text-teal-500"></i></div>
+                                <h4 class="font-bold text-slate-800 text-sm">단체 행동 엄수</h4>
+                                <p class="text-[11px] text-slate-500 mt-1">관광지나 테마파크에서는<br>조를 벗어나 혼자 다니지 않아요.</p>
+                            </div>
+                            <div class="bg-white rounded-xl p-4 border border-teal-100 shadow-sm">
+                                <div class="mb-2"><i class="fa-solid fa-ship text-2xl text-blue-500"></i></div>
+                                <h4 class="font-bold text-slate-800 text-sm">여객선 탑승 주의</h4>
+                                <p class="text-[11px] text-slate-500 mt-1">가파도에 들어갈 때 배 안에서<br>뛰거나 장난치지 않습니다.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map -->
+    <section id="map-section" class="py-12 bg-slate-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-3xl font-bold text-slate-800 tracking-tight font-title">한눈에 보는 제주 동선</h2>
+                <p class="text-slate-500 mt-2 text-sm">동서남북 제주의 핵심을 알차게 돌아보는 3박 4일 일정!</p>
+            </div>
+            <div class="max-w-5xl mx-auto border border-slate-200 rounded-2xl p-1 shadow-lg bg-white relative">
+                <!-- Guide Tip Overlay -->
+                <div class="absolute top-4 left-4 z-[400] bg-white/90 backdrop-blur border border-red-200 p-3 rounded-lg shadow-md max-w-[200px]">
+                    <p class="text-[11px] font-bold text-red-600 mb-1"><i class="fa-solid fa-triangle-exclamation"></i> 가이드의 동선 TIP</p>
+                    <p class="text-[10px] text-slate-600 leading-tight">제주도는 날씨(바람, 비)에 따라 야외 활동이나 가파도 배편 일정이 현지에서 유동적으로 변경될 수 있습니다.</p>
+                </div>
+                <div id="map"></div>
+            </div>
+            <div class="max-w-5xl mx-auto mt-4 flex flex-wrap justify-center gap-4 text-xs font-bold text-slate-600">
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-orange-500"></span>공항/항구</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-blue-500"></span>주요 체험지</div>
+                <div class="flex items-center gap-1"><span class="w-3 h-3 rounded-full bg-teal-500"></span>숙소</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Detailed Schedule -->
+    <section id="schedule" class="py-16 bg-white border-t border-slate-100">
+        <div class="container mx-auto px-4">
+            <div class="max-w-4xl mx-auto">
+                <div class="text-center mb-10">
+                    <div class="flex justify-center items-center gap-3 mb-2">
+                        <h2 class="text-2xl md:text-3xl font-bold font-title">세부 일정</h2>
+                        <!-- 일정표 인쇄 버튼 추가 -->
+                        <button onclick="window.print()" class="bg-slate-800 text-white px-3 py-1.5 rounded-lg text-xs font-bold shadow-md hover:bg-slate-700 transition flex items-center gap-1"><i class="fa-solid fa-print"></i> 일정표 인쇄</button>
+                    </div>
+                    <p class="text-slate-500 text-sm">탭을 눌러 일자별 상세 체험 내용을 확인하세요.</p>
+                    <p class="text-xs text-red-500 mt-2 font-bold bg-red-50 inline-block px-3 py-1 rounded-full shadow-sm"><i class="fa-solid fa-circle-exclamation"></i> 상기 상세 일정은 항공 및 현지 사정에 의해 변동될 수 있습니다.</p>
+                </div>
+
+                <div class="flex overflow-x-auto no-scrollbar gap-2 mb-8 justify-start md:justify-center px-2">
+                    <button class="tab-btn active shrink-0 px-5 py-3 rounded-2xl border-2 border-orange-500 bg-orange-500 text-white font-bold text-sm transition" onclick="openTab(event, 'day1')">1일차 (4/21 화)</button>
+                    <button class="tab-btn shrink-0 px-5 py-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm transition" onclick="openTab(event, 'day2')">2일차 (4/22 수)</button>
+                    <button class="tab-btn shrink-0 px-5 py-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm transition" onclick="openTab(event, 'day3')">3일차 (4/23 목)</button>
+                    <button class="tab-btn shrink-0 px-5 py-3 rounded-2xl border-2 border-slate-200 bg-white text-slate-500 font-bold text-sm transition" onclick="openTab(event, 'day4')">4일차 (4/24 금)</button>
+                </div>
+
+                <div class="bg-white rounded-3xl shadow-xl border border-slate-100 overflow-hidden">
+                    <!-- Day 1 -->
+                    <div id="day1" class="tab-content animate-fade-in-up p-8">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-4xl bg-orange-100 p-3 rounded-2xl">✈️</span>
+                            <div>
+                                <h3 class="font-bold text-2xl text-slate-800 font-title">안녕, 제주! 설레는 첫 만남</h3>
+                                <p class="text-orange-600 font-medium text-sm">원주 → 제주공항 → 신화월드 → 서귀포</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="relative pl-8 border-l-2 border-orange-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-orange-500"></div>
+                                <h4 class="font-bold text-lg">오전: 원주공항 도착 및 수속</h4>
+                                <p class="text-slate-500 text-sm mt-1">인원 파악 및 국내선 탑승 수속 (신분증 준비!)</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-orange-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-400"></div>
+                                <h4 class="font-bold text-lg">11:15 ~ 12:30 제주로 출발 (진에어)</h4>
+                                <p class="text-slate-500 text-sm mt-1">원주공항 출발하여 제주공항 도착 후 전용버스 탑승</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-orange-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-red-400"></div>
+                                <h4 class="font-bold text-lg">오후: 중식 (흑우불고기 정식)</h4>
+                                <p class="text-slate-500 text-sm mt-1">제주에서 맛보는 든든한 첫 식사</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-orange-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-yellow-400"></div>
+                                <h4 class="font-bold text-lg">신화월드 테마파크 (빅3 이용권)</h4>
+                                <p class="text-slate-500 text-sm mt-1">제주 최대 복합 리조트 내 테마파크에서 짜릿한 놀이기구 체험</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-orange-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-teal-500"></div>
+                                <h4 class="font-bold text-lg">석식(호텔식) 및 숙소 체크인</h4>
+                                <p class="text-slate-500 text-sm mt-1">서귀포 신신호텔 제주오션(2인&3인실) 배정 및 짐 풀기</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg mt-4 border border-slate-200 text-sm">
+                                🏨 <strong>석식 후 자유시간 및 취침</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 2 -->
+                    <div id="day2" class="tab-content hidden animate-fade-in-up p-8">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-4xl bg-blue-100 p-3 rounded-2xl">🌾</span>
+                            <div>
+                                <h3 class="font-bold text-2xl text-slate-800 font-title">청보리 섬과 화려한 퍼포먼스</h3>
+                                <p class="text-blue-600 font-medium text-sm">가파도 → 오설록/곶자왈 → 아트서커스 → 카멜리아힐</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="relative pl-8 border-l-2 border-blue-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-teal-400"></div>
+                                <h4 class="font-bold text-lg">오전: 기상 및 조식 (호텔식)</h4>
+                                <p class="text-slate-500 text-sm mt-1">든든하게 아침을 먹고 숙소 출발 준비</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-blue-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+                                <h4 class="font-bold text-lg">가파도 섬 탐방</h4>
+                                <p class="text-slate-500 text-sm mt-1">여객선을 타고 들어가 푸른 청보리가 춤추는 아름다운 풍경 감상</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-blue-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-red-400"></div>
+                                <h4 class="font-bold text-lg">오후: 중식 (한식뷔페)</h4>
+                                <p class="text-slate-500 text-sm mt-1">입맛대로 골라 먹는 푸짐한 점심</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-blue-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-green-500"></div>
+                                <h4 class="font-bold text-lg">오설록 녹차밭 OR 곶자왈 도립공원 (택1)</h4>
+                                <p class="text-slate-500 text-sm mt-1">초록빛 녹차밭 또는 제주의 허파 곶자왈 숲길 산책</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-blue-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-purple-500"></div>
+                                <h4 class="font-bold text-lg">아트서커스 관람</h4>
+                                <p class="text-slate-500 text-sm mt-1">오토바이쇼와 각종 기예공연이 펼쳐지는 화려한 무대</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-blue-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-pink-500"></div>
+                                <h4 class="font-bold text-lg">카멜리아힐</h4>
+                                <p class="text-slate-500 text-sm mt-1">아름다운 동백꽃 테마 정원과 온실 식물원 관람하며 예쁜 사진 남기기</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg mt-4 border border-slate-200 text-sm">
+                                🏨 <strong>숙소 도착 후 석식(호텔식) 및 자유시간</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 3 -->
+                    <div id="day3" class="tab-content hidden animate-fade-in-up p-8">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-4xl bg-green-100 p-3 rounded-2xl">🚂</span>
+                            <div>
+                                <h3 class="font-bold text-2xl text-slate-800 font-title">기차 타고 숲으로, 바다로!</h3>
+                                <p class="text-green-600 font-medium text-sm">에코랜드 → 메이즈랜드 → 아쿠아플라넷 → 오조리포구</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="relative pl-8 border-l-2 border-green-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-teal-400"></div>
+                                <h4 class="font-bold text-lg">오전: 기상 및 조식 (호텔식)</h4>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-green-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-green-600"></div>
+                                <h4 class="font-bold text-lg">에코랜드 테마파크</h4>
+                                <p class="text-slate-500 text-sm mt-1">곶자왈 숲속을 달리는 클래식 궤도 열차 탑승 및 화산송이 산책로 걷기</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-green-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-lime-500"></div>
+                                <h4 class="font-bold text-lg">메이즈랜드</h4>
+                                <p class="text-slate-500 text-sm mt-1">바람, 물, 돌을 테마로 한 국내 최대 규모의 미로공원에서 길 찾기 대결!</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-green-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-red-400"></div>
+                                <h4 class="font-bold text-lg">중식 (토종돼지주물럭)</h4>
+                                <p class="text-slate-500 text-sm mt-1">맛있는 제주 돼지 주물럭으로 에너지 충전</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-green-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-500"></div>
+                                <h4 class="font-bold text-lg">오후: 아쿠아플라넷 제주 (공연 포함)</h4>
+                                <p class="text-slate-500 text-sm mt-1">아시아 최대 규모의 수족관에서 해양 생물 만나고 환상적인 수중 공연 관람</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-green-200">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-cyan-500"></div>
+                                <h4 class="font-bold text-lg">오조리 포구</h4>
+                                <p class="text-slate-500 text-sm mt-1">철새도래지이자 드라마 '웰컴투삼달리'의 아름다운 촬영지 탐방</p>
+                            </div>
+                            <div class="bg-slate-50 p-4 rounded-lg mt-4 border border-slate-200 text-sm">
+                                🏨 <strong>숙소 도착 후 석식(호텔식) 및 자유시간</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Day 4 -->
+                    <div id="day4" class="tab-content hidden animate-fade-in-up p-8">
+                        <div class="flex items-center gap-4 mb-6">
+                            <span class="text-4xl bg-yellow-100 p-3 rounded-2xl">📸</span>
+                            <div>
+                                <h3 class="font-bold text-2xl text-slate-800 font-title">아쉬운 작별, 인생샷 남기기</h3>
+                                <p class="text-yellow-600 font-medium text-sm">테마파크툰 → 이호테우 해변 → 제주공항 → 원주</p>
+                            </div>
+                        </div>
+                        <div class="space-y-6">
+                            <div class="relative pl-8 border-l-2 border-yellow-300">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-teal-400"></div>
+                                <h4 class="font-bold text-lg">오전: 기상 및 조식 (호텔식)</h4>
+                                <p class="text-slate-500 text-sm mt-1">마지막 날 아침 식사 후 짐 챙겨서 숙소 출발</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-yellow-300">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-purple-400"></div>
+                                <h4 class="font-bold text-lg">기념품샵 & 테마파크툰</h4>
+                                <p class="text-slate-500 text-sm mt-1">가족들을 위한 선물도 사고, 인기 웹툰 테마로 꾸며진 공간 구경하기</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-yellow-300">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-blue-400"></div>
+                                <h4 class="font-bold text-lg">이호테우 말등대 & 무지개 해안도로</h4>
+                                <p class="text-slate-500 text-sm mt-1">귀여운 조랑말 등대와 알록달록 해안도로에서 친구들과 인생샷 찍기</p>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-yellow-300">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-red-400"></div>
+                                <h4 class="font-bold text-lg">중식 (제육볶음 + 고등어구이)</h4>
+                            </div>
+                            <div class="relative pl-8 border-l-2 border-yellow-300">
+                                <div class="absolute left-[-9px] top-0 w-4 h-4 rounded-full bg-orange-500"></div>
+                                <h4 class="font-bold text-lg">14:00 제주공항 도착 및 탑승수속</h4>
+                            </div>
+                            
+                            <div class="bg-orange-50 p-6 rounded-2xl border border-orange-200 mt-8 text-center shadow-sm">
+                                <p class="text-sm font-bold text-slate-800">✈️ 15:20 제주 출발 (진에어)</p>
+                                <p class="text-sm mt-2 font-bold text-slate-800">🛬 16:35 원주공항 도착</p>
+                                <p class="text-sm mt-2 font-bold text-slate-800">🏫 <strong>학교로 이동 및 해산</strong></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Promotional Videos -->
+    <section id="video" class="py-16 bg-slate-900">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10 text-white">
+                <h2 class="text-2xl font-bold font-title">🎬 미리 만나는 제주의 풍경</h2>
+                <p class="text-slate-400 text-sm mt-2">영상으로 아름다운 제주의 모습을 먼저 감상해볼까요?</p>
+            </div>
+            <!-- 영상 1개 강조 레이아웃으로 변경 -->
+            <div class="max-w-3xl mx-auto">
+                <div class="space-y-4">
+                    <div class="aspect-video rounded-3xl overflow-hidden shadow-2xl border border-slate-700 relative">
+                        <!-- 대표님이 제안하신 영상 ID 반영 -->
+                        <iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/pNflw8gEAoU" title="Jeju Travel Highlights" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                    </div>
+                    <p class="text-center text-slate-300 font-bold text-sm tracking-wide">🌿 설렘 가득한 제주도 문화탐방, 영상으로 미리 만나보세요!</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Checklist & Memo -->
+    <section id="check" class="py-16 bg-white border-t border-slate-100">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-10">
+                <h2 class="text-2xl font-bold text-slate-800 font-title">🎒 준비물 체크리스트 & 메모</h2>
+                <p class="text-sm text-slate-500 mt-1">출발 전 가방을 꼼꼼히 확인해보세요!</p>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+                <!-- Checklist -->
+                <div class="bg-orange-50 p-6 rounded-2xl border border-orange-100">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold text-lg text-orange-900">✅ 필수 준비물</h3>
+                        <button onclick="resetChecklist()" class="text-xs text-slate-500 underline hover:text-red-500 transition-colors bg-white px-2 py-1 rounded border border-slate-200">[초기화]</button>
+                    </div>
+                    <div id="checklist-container" class="space-y-2">
+                        <!-- JS Generated -->
+                    </div>
+                </div>
+                <!-- Memo -->
+                <div class="bg-yellow-50 p-6 rounded-2xl border border-yellow-100 shadow-sm">
+                    <h3 class="font-bold text-lg mb-4 text-yellow-800">📝 나만의 메모장</h3>
+                    <textarea id="travel-memo" class="w-full h-64 bg-white p-4 rounded-lg border border-yellow-200 text-slate-700 resize-none focus:outline-none focus:ring-2 focus:ring-yellow-400" placeholder="개인 간식비, 꼭 사고 싶은 기념품, 친구들과의 약속 등을 적어두세요!"></textarea>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Emergency Contact -->
+    <section id="contact" class="py-12 bg-slate-50">
+        <div class="container mx-auto px-4">
+            <div class="text-center mb-8">
+                <h2 class="text-2xl font-bold text-slate-800 font-title">🚨 비상 연락망</h2>
+                <p class="text-sm text-slate-500 mt-1">선생님과 길이 엇갈리거나 도움이 필요할 때 연락해요.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
+                <!-- Teacher -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                    <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-chalkboard-user text-red-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">북평초 담당 선생님</h4>
+                    <div class="mt-2 space-y-1">
+                        <p class="text-sm font-medium text-slate-600">무슨 일이 생기면 가장 먼저 연락해 주세요!</p>
+                        <p class="text-sm font-bold text-red-600 mt-2">신주영 선생님: <a href="tel:010-8970-7277" class="hover:underline">010-8970-7277</a></p>
+                    </div>
+                </div>
+                <!-- Agency Staff -->
+                <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex flex-col justify-center items-center text-center">
+                    <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center mb-3">
+                        <i class="fa-solid fa-user-shield text-orange-600 text-xl"></i>
+                    </div>
+                    <h4 class="font-bold text-slate-800 text-lg">투어메이커 안전 매니저</h4>
+                    <div class="mt-2 space-y-1">
+                        <p class="text-sm font-medium text-slate-600">안전한 일정을 위해 밀착 케어합니다.</p>
+                        <p class="text-sm font-bold text-orange-700 mt-2">이재명 대표: <a href="tel:010-9443-7881" class="hover:underline">010-9443-7881</a></p>
+                        <p class="text-sm font-bold text-orange-700">조혁 이사: <a href="tel:010-4249-4026" class="hover:underline">010-4249-4026</a></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer (B2B 포맷 및 홈페이지 바로가기 박스 규칙 완벽 적용) -->
+    <footer style="background-color: #f8f9fa;" class="py-12 border-t border-slate-200">
+        <div class="container mx-auto px-4 text-center">
+            <!-- 투어메이커 홈페이지 바로가기 박스 -->
+            <div class="flex flex-col items-center justify-center mb-6">
+                <a href="http://tourmaker.kr" target="_blank" class="inline-block bg-white border border-slate-300 rounded-xl px-6 py-3 hover:shadow-md transition-shadow mb-6">
+                    <div class="flex items-center gap-3">
+                        <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" alt="Tourmaker" class="h-6">
+                        <span class="text-sm font-bold text-slate-700">홈페이지 바로가기 <i class="fa-solid fa-chevron-right text-xs"></i></span>
+                    </div>
+                </a>
+            </div>
+            
+            <!-- B2B 제휴 문구 규칙 적용 -->
+            <p style="font-size: 13px; color: #6c757d; text-align: center;" class="font-normal mb-8 max-w-2xl mx-auto leading-relaxed">
+                [System Powered by TOURMAKER] 본 스마트 가이드북은 **북평초등학교**의 기획과 <a href="http://tourmaker.kr" target="_blank" style="font-weight: bold; color: #6c757d; text-decoration: underline; text-underline-offset: 2px;">투어메이커</a>의 트래블 테크 기술 제휴로 제작되었습니다.
+            </p>
+            <p class="text-[10px] text-slate-400">&copy; 2026 Tourmaker Inc. All rights reserved.</p>
+        </div>
+    </footer>
+
+    </div> <!-- 화면에만 보이고 인쇄할 때는 숨겨지는 메인 래퍼 종료 -->
+
+    <!-- 인쇄 전용 (A4) 레이아웃 시작 (평상시 화면에는 숨김) -->
+    <div class="hidden print:block bg-white text-black p-4 w-full font-sans" style="max-width: 210mm; margin: 0 auto;">
+        <div class="border-b-2 border-black pb-4 mb-6 text-center">
+            <h1 class="text-2xl font-bold text-center mb-2 font-title">[북평초등학교] 신나는 제주 문화탐방 3박 4일</h1>
+            <p class="text-center text-sm text-gray-600">※ 본 일정표는 항공 및 현지 사정에 따라 다소 변경될 수 있습니다.</p>
+            <p class="text-center text-xs font-bold text-gray-700 mt-2">여행인원: 초등학생 13명 + 교사 4명 (총 17명) | 숙소: 서귀포 신신호텔 제주오션</p>
+        </div>
+        
+        <table class="w-full text-[12px] border-collapse border border-gray-400 mb-6">
+            <thead>
+                <tr class="bg-gray-100 text-center">
+                    <th class="border border-gray-400 p-2 w-16">일자</th>
+                    <th class="border border-gray-400 p-2 w-20">시간/비행</th>
+                    <th class="border border-gray-400 p-2">상세일정</th>
+                    <th class="border border-gray-400 p-2 w-24">식사</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Day 1 -->
+                <tr>
+                    <td class="border border-gray-400 p-2 text-center font-bold">1일차<br>4/21(화)</td>
+                    <td class="border border-gray-400 p-2 text-center text-[10px] leading-tight">
+                        <span class="font-bold text-orange-600">원주출발</span><br>11:15<br><span class="font-bold text-blue-600">제주도착</span><br>12:30
+                    </td>
+                    <td class="border border-gray-400 p-2">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>원주공항 도착 및 탑승수속</strong></li>
+                            <li><strong>제주공항 도착</strong> (인원파악 후 출발)</li>
+                            <li>신화월드테마파크 (빅3 이용권)</li>
+                            <li class="mt-2 text-blue-700"><strong>숙소 도착 및 체크인</strong> (석식 후 자유시간)</li>
+                        </ul>
+                    </td>
+                    <td class="border border-gray-400 p-2 text-center text-gray-700">
+                        조: -<br>중: 흑우불고기<br>석: 호텔식
+                    </td>
+                </tr>
+                <!-- Day 2 -->
+                <tr>
+                    <td class="border border-gray-400 p-2 text-center font-bold">2일차<br>4/22(수)</td>
+                    <td class="border border-gray-400 p-2 text-center text-[11px]">종일<br>전용버스</td>
+                    <td class="border border-gray-400 p-2">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>기상 및 조식 후 숙소출발</strong></li>
+                            <li><strong>가파도 섬탐방</strong> (청보리로 유명한 섬)</li>
+                            <li>오설록녹차밭 또는 제주곶자왈도립공원 (택1)</li>
+                            <li><strong>아트서커스</strong> (오토바이쇼, 기예공연)</li>
+                            <li><strong>카멜리아힐</strong> (동백꽃테마, 온실식물)</li>
+                            <li class="mt-2 text-gray-700"><strong>숙소 도착 후 석식 및 자유시간</strong></li>
+                        </ul>
+                    </td>
+                    <td class="border border-gray-400 p-2 text-center text-gray-700">
+                        조: 호텔식<br>중: 한식뷔페<br>석: 호텔식
+                    </td>
+                </tr>
+                <!-- Day 3 -->
+                <tr>
+                    <td class="border border-gray-400 p-2 text-center font-bold">3일차<br>4/23(목)</td>
+                    <td class="border border-gray-400 p-2 text-center text-[11px]">종일<br>전용버스</td>
+                    <td class="border border-gray-400 p-2">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>기상 및 조식 후 숙소출발</strong></li>
+                            <li><strong>에코랜드</strong> (곶자왈관광궤도 열차)</li>
+                            <li><strong>메이즈랜드</strong> (국내 최대규모 미로공원)</li>
+                            <li><strong>아쿠아플라넷</strong> (수족관 및 공연 포함)</li>
+                            <li><strong>오조리포구</strong> (철새도래지, 웰컴투삼달리 촬영지)</li>
+                            <li class="mt-2 text-gray-700"><strong>숙소 도착 후 석식 및 자유시간</strong></li>
+                        </ul>
+                    </td>
+                    <td class="border border-gray-400 p-2 text-center text-gray-700">
+                        조: 호텔식<br>중: 토종돼지주물럭<br>석: 호텔식
+                    </td>
+                </tr>
+                <!-- Day 4 -->
+                <tr>
+                    <td class="border border-gray-400 p-2 text-center font-bold">4일차<br>4/24(금)</td>
+                    <td class="border border-gray-400 p-2 text-center text-[10px] leading-tight">
+                        <span class="font-bold text-blue-600">제주출발</span><br>15:20<br><span class="font-bold text-orange-600">원주도착</span><br>16:35
+                    </td>
+                    <td class="border border-gray-400 p-2">
+                        <ul class="list-disc list-inside space-y-1">
+                            <li><strong>기상 및 조식 후 숙소출발</strong></li>
+                            <li><strong>기념품샵 & 테마파크툰</strong> (웹툰 테마)</li>
+                            <li><strong>이호테우말등대 & 무지개해안도로</strong> (인생샷)</li>
+                            <li class="mt-2 font-bold text-blue-700"><strong>14:00 제주공항 도착 후 탑승수속</strong></li>
+                            <li>원주공항 도착 후 학교로 이동</li>
+                        </ul>
+                    </td>
+                    <td class="border border-gray-400 p-2 text-center text-gray-700">
+                        조: 호텔식<br>중: 제육볶음<br>&고등어구이<br>석: -
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="flex justify-between items-center mt-8 pt-4 border-t border-gray-300">
+            <div class="flex items-center gap-2">
+                <img src="https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgHfgIX70O5k6Anuo0UgALIdaG9jSga9auHu3uyz0uEirylGPAJnjN_qQbvEGMUvPqUQf_g9FMNUHRxlDcUBf4vZ3Mpy4TnA9WxbmzWYK11gt2zuy_Irl4wctNFjcjLyPo0GPXV792o_J7L9guRMuDfeC1gy7USwywjYbECZgzcsHybuGRRAXAnO1eNmP8/s320/logo.png" alt="Tourmaker Logo" style="height: 20px;">
+                <span class="text-xs font-bold text-gray-600">TOURMAKER INC.</span>
+            </div>
+            <span class="text-xs text-gray-500">본 문서는 스마트 가이드북 내장 인쇄 기능으로 출력되었습니다.</span>
+        </div>
+    </div>
+    <!-- 인쇄 전용 (A4) 레이아웃 종료 -->
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        function openTab(evt, tabId){
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active','bg-orange-500','text-white','border-orange-500');
+                btn.classList.add('bg-white','text-slate-500','border-slate-200');
+            });
+            document.getElementById(tabId)?.classList.remove('hidden');
+            evt.currentTarget.classList.add('active','bg-orange-500','text-white','border-orange-500');
+            evt.currentTarget.classList.remove('bg-white','text-slate-500','border-slate-200');
+        }
+
+        function shareLink(){
+            const url = window.location.href;
+            if (navigator.share) {
+                navigator.share({ title: '[북평초] 제주 3박 4일 문화탐방', url }).catch(()=>{});
+            } else {
+                navigator.clipboard?.writeText(url).then(()=>alert('링크가 복사되었습니다. 카카오톡에 붙여넣기 해주세요.'));
+            }
+        }
+
+        // Checklist Logic (제주도 특화 준비물 반영)
+        const CHECK_KEY = 'bukpyeong_jeju_checklist'; 
+        const CHECK_ITEMS = [
+            '★신분증★ (주민등록등본, 학생증 등 탑승수속용)',
+            '단정한 사복 및 여벌 옷 (속옷, 양말 등)',
+            '많이 걸어도 발이 편한 운동화',
+            '제주 바람을 막아줄 겉옷(바람막이 등)',
+            '가파도 배 탑승 대비 멀미약 (필수!)',
+            '세면도구 (칫솔, 치약 등)',
+            '작은 우산 또는 우비 (변덕스러운 날씨 대비)',
+            '개인 용돈 및 교통카드',
+            '핸드폰 보조배터리 및 충전기',
+        ];
+
+        function renderChecklist(){
+            const container = document.getElementById('checklist-container');
+            if(!container) return;
+
+            const saved = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}');
+
+            container.innerHTML = CHECK_ITEMS.map((label, idx) => {
+                const id = `chk_bp_${idx}`;
+                const checked = saved[id] ? 'checked' : '';
+                // 신분증 항목 강조
+                const isImportant = label.includes('★신분증★') || label.includes('멀미약');
+                const labelClass = isImportant ? 'text-sm font-bold text-red-600' : 'text-sm text-slate-700';
+
+                return `
+                    <label class="flex items-center gap-2 bg-white/80 border border-orange-100 rounded-lg px-3 py-2 cursor-pointer hover:bg-orange-50 transition">
+                        <input type="checkbox" id="${id}" ${checked} class="h-4 w-4 text-orange-500 rounded focus:ring-orange-500">
+                        <span class="${labelClass}">${label}</span>
+                    </label>
+                `;
+            }).join('');
+
+            container.querySelectorAll('input[type=checkbox]').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    const currentSaved = JSON.parse(localStorage.getItem(CHECK_KEY) || '{}');
+                    currentSaved[cb.id] = cb.checked;
+                    localStorage.setItem(CHECK_KEY, JSON.stringify(currentSaved));
+                });
+            });
+        }
+        
+        // Reset Function
+        function resetChecklist(){
+            if(confirm('체크리스트를 초기화하시겠습니까?\n체크된 항목이 모두 해제됩니다.')){
+                localStorage.removeItem(CHECK_KEY);
+                renderChecklist();
+            }
+        }
+
+        // Init Checklist
+        renderChecklist();
+
+        // Memo Logic
+        (function(){
+            const memo = document.getElementById('travel-memo');
+            if(!memo) return;
+            const KEY = 'bukpyeong_jeju_memo';
+            memo.value = localStorage.getItem(KEY) || '';
+            memo.addEventListener('input', () => {
+                localStorage.setItem(KEY, memo.value);
+            });
+        })();
+
+        // Map Logic (제주 동선으로 업데이트)
+        let mapInited = false;
+        function initMap(){
+            if(mapInited || !window.L) return;
+            mapInited = true;
+            
+            // Approximate Coordinates for Jeju itinerary
+            const spots = {
+                jejuAirport: [33.5104, 126.4913],
+                shinhwa: [33.3060, 126.3168],
+                hotel: [33.2450, 126.5650], // 서귀포 신신호텔 오션 부근
+                gapado: [33.2185, 126.2514], // 마라도/가파도 여객선 터미널 부근
+                osulloc: [33.3059, 126.2895],
+                camellia: [33.2838, 126.3533],
+                ecoland: [33.4560, 126.6678],
+                mazeland: [33.4357, 126.7946],
+                aqua: [33.4328, 126.9277], // 아쿠아플라넷 제주
+                iho: [33.4984, 126.4526] // 이호테우 해변
+            };
+
+            const map = L.map('map', { scrollWheelZoom:false });
+            
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                attribution: '&copy; OpenStreetMap &copy; CARTO',
+                maxZoom: 15
+            }).addTo(map);
+
+            // Path 1 (Day1): Airport -> Shinhwa -> Hotel
+            L.polyline([spots.jejuAirport, spots.shinhwa, spots.hotel], { color: '#f97316', weight: 4, opacity: 0.8 }).addTo(map);
+            
+            // Path 2 (Day2): Hotel -> Gapado -> Osulloc -> Camellia -> Hotel
+            L.polyline([spots.hotel, spots.gapado, spots.osulloc, spots.camellia, spots.hotel], { color: '#3b82f6', weight: 4, opacity: 0.8 }).addTo(map);
+            
+            // Path 3 (Day3): Hotel -> Ecoland -> Mazeland -> Aqua -> Hotel
+            L.polyline([spots.hotel, spots.ecoland, spots.mazeland, spots.aqua, spots.hotel], { color: '#22c55e', weight: 4, opacity: 0.8 }).addTo(map);
+
+            // Path 4 (Day4): Hotel -> Iho -> Airport
+            L.polyline([spots.hotel, spots.iho, spots.jejuAirport], { color: '#eab308', weight: 4, opacity: 0.8, dashArray: '5,5' }).addTo(map);
+
+            // Markers
+            const createMarker = (latlng, title, color, iconHtml) => {
+                const icon = L.divIcon({
+                    className: 'custom-icon',
+                    html: `<div style="background-color:${color}; width:32px; height:32px; border-radius:50%; border:2px solid white; color:white; display:flex; align-items:center; justify-content:center; font-size:14px;">${iconHtml}</div>`,
+                    iconSize: [32, 32]
+                });
+                L.marker(latlng, {icon: icon}).addTo(map).bindPopup(`<b style="font-family:'Noto Sans KR', sans-serif;">${title}</b>`);
+            };
+
+            createMarker(spots.jejuAirport, '제주국제공항', '#f97316', '✈️');
+            createMarker(spots.shinhwa, '신화월드테마파크', '#3b82f6', '🎢');
+            createMarker(spots.hotel, '신신호텔 (서귀포)', '#14b8a6', '🏨');
+            createMarker(spots.gapado, '가파도 여객터미널', '#3b82f6', '🚢');
+            createMarker(spots.osulloc, '오설록/아트서커스', '#3b82f6', '🍵');
+            createMarker(spots.ecoland, '에코랜드', '#22c55e', '🚂');
+            createMarker(spots.aqua, '아쿠아플라넷/오조리', '#22c55e', '🐬');
+            createMarker(spots.iho, '이호테우 해변', '#eab308', '🐎');
+
+            // Fit bounds to Jeju Island
+            const bounds = L.latLngBounds(Object.values(spots));
+            map.fitBounds(bounds, { padding: [30, 30] });
+        }
+
+        // D-Day Calculation (Target: 2026-04-21)
+        const depart = new Date('2026-04-21');
+        const diff = Math.ceil((depart - new Date()) / (1000*60*60*24));
+        const badge = document.getElementById('d-day-badge');
+        if(badge) {
+            badge.textContent = diff > 0 ? `D-${diff}` : (diff === 0 ? 'D-DAY' : `D+${Math.abs(diff)}`);
+            badge.classList.remove('hidden');
+        }
+
+        // Observer for Map
+        const io = new IntersectionObserver((entries)=>{
+            if(entries[0].isIntersecting) { initMap(); io.disconnect(); }
+        }, { threshold: 0.1 });
+        io.observe(document.getElementById('map-section'));
+    </script>
+</body>
+</html>
