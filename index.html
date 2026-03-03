@@ -226,6 +226,16 @@
                 <h2 class="text-3xl font-bold text-slate-800 tracking-tight font-title">한눈에 보는 제주 동선</h2>
                 <p class="text-slate-500 mt-2 text-sm">동서남북 제주의 핵심을 알차게 돌아보는 3박 4일 일정!</p>
             </div>
+
+            <!-- Map Day Filter Buttons -->
+            <div class="flex flex-wrap justify-center gap-2 mb-6">
+                <button onclick="filterMap('all')" id="btn-map-all" class="map-btn px-4 py-2 rounded-full text-sm font-bold bg-slate-800 text-white shadow-sm transition-colors">전체 일정</button>
+                <button onclick="filterMap('day1')" id="btn-map-day1" class="map-btn px-4 py-2 rounded-full text-sm font-bold bg-white border border-slate-300 text-slate-600 hover:bg-orange-50 shadow-sm transition-colors">1일차</button>
+                <button onclick="filterMap('day2')" id="btn-map-day2" class="map-btn px-4 py-2 rounded-full text-sm font-bold bg-white border border-slate-300 text-slate-600 hover:bg-blue-50 shadow-sm transition-colors">2일차</button>
+                <button onclick="filterMap('day3')" id="btn-map-day3" class="map-btn px-4 py-2 rounded-full text-sm font-bold bg-white border border-slate-300 text-slate-600 hover:bg-green-50 shadow-sm transition-colors">3일차</button>
+                <button onclick="filterMap('day4')" id="btn-map-day4" class="map-btn px-4 py-2 rounded-full text-sm font-bold bg-white border border-slate-300 text-slate-600 hover:bg-yellow-50 shadow-sm transition-colors">4일차</button>
+            </div>
+
             <div class="max-w-5xl mx-auto border border-slate-200 rounded-2xl p-1 shadow-lg bg-white relative">
                 <!-- Guide Tip Overlay -->
                 <div class="absolute top-4 left-4 z-[400] bg-white/90 backdrop-blur border border-red-200 p-3 rounded-lg shadow-md max-w-[200px]">
@@ -527,7 +537,15 @@
                         </div>
                         <div class="text-center md:text-left flex-1">
                             <h3 class="text-xl font-bold text-red-700 mb-2">투어메이커 안전 매뉴얼 (T-safe24)</h3>
-                            <p class="text-slate-600 text-sm leading-relaxed mb-4">환자 발생, 분실, 기상 악화 등 현장에서 발생할 수 있는 다양한 긴급 상황에 대한 대처 매뉴얼입니다. 학생들과 선생님 모두 안전한 여행을 위해 꼭 한 번 확인해 주시기 바랍니다.</p>
+                            <div class="text-slate-600 text-sm leading-relaxed mb-4 space-y-2">
+                                <p><strong>사용자 실행형 긴급지원 시스템</strong>으로, 현장에서 즉각적으로 활용할 수 있는 안전 매뉴얼입니다.</p>
+                                <ul class="text-left bg-white/60 p-3 rounded-lg border border-red-100 space-y-1">
+                                    <li><i class="fa-solid fa-location-dot text-red-500 mr-2 w-4"></i>위치 기반 긴급 지원 (인근 병원/경찰서 탐색)</li>
+                                    <li><i class="fa-solid fa-comment-sms text-red-500 mr-2 w-4"></i>사용자 요청형 SOS 위치 전송</li>
+                                    <li><i class="fa-solid fa-share-nodes text-red-500 mr-2 w-4"></i>긴급 상황 대응용 위치 공유 시스템</li>
+                                </ul>
+                                <p class="text-[11px] text-red-500 font-bold pt-1">※ 본 시스템은 상시 자동 추적(관제)이 아닌, 필요 시 사용자의 실행으로 구동되는 안심 보조 도구입니다.</p>
+                            </div>
                             <span class="inline-flex items-center gap-2 bg-red-600 text-white px-4 py-2 rounded-lg font-bold text-sm group-hover:bg-red-700 transition-colors">
                                 매뉴얼 확인하기 <i class="fa-solid fa-arrow-right"></i>
                             </span>
@@ -754,6 +772,10 @@
 
         // Map Logic (업데이트된 동선 반영)
         let mapInited = false;
+        let dayLayers = {};
+        let currentMap = null;
+        let allSpots = {};
+
         function initMap(){
             if(mapInited || !window.L) return;
             mapInited = true;
@@ -772,52 +794,96 @@
                 ecoland: [33.4560, 126.6678],
                 iho: [33.4984, 126.4526]        // 이호테우 해변
             };
+            allSpots = spots;
 
-            const map = L.map('map', { scrollWheelZoom:false });
+            currentMap = L.map('map', { scrollWheelZoom:false });
             
             L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
                 attribution: '&copy; OpenStreetMap &copy; CARTO',
                 maxZoom: 15
-            }).addTo(map);
+            }).addTo(currentMap);
 
-            // Path 1 (Day1): Airport -> Shinhwa -> Hotel
-            L.polyline([spots.jejuAirport, spots.shinhwa, spots.hotel], { color: '#f97316', weight: 4, opacity: 0.8 }).addTo(map);
-            
-            // Path 2 (Day2): Hotel -> Mazeland -> Aqua -> Seongsan -> Hotel
-            L.polyline([spots.hotel, spots.mazeland, spots.aqua, spots.seongsan, spots.hotel], { color: '#3b82f6', weight: 4, opacity: 0.8 }).addTo(map);
-            
-            // Path 3 (Day3): Hotel -> Gapado -> Aerospace -> Osulloc -> Hotel
-            L.polyline([spots.hotel, spots.gapado, spots.aerospace, spots.osulloc, spots.hotel], { color: '#22c55e', weight: 4, opacity: 0.8 }).addTo(map);
-
-            // Path 4 (Day4): Hotel -> Ecoland -> Iho -> Airport
-            L.polyline([spots.hotel, spots.ecoland, spots.iho, spots.jejuAirport], { color: '#eab308', weight: 4, opacity: 0.8, dashArray: '5,5' }).addTo(map);
-
-            // Markers
-            const createMarker = (latlng, title, color, iconHtml) => {
+            // Create Marker Objects (not added to map directly yet)
+            const createMarkerObj = (latlng, title, color, iconHtml) => {
                 const icon = L.divIcon({
                     className: 'custom-icon',
                     html: `<div style="background-color:${color}; width:32px; height:32px; border-radius:50%; border:2px solid white; color:white; display:flex; align-items:center; justify-content:center; font-size:14px;">${iconHtml}</div>`,
                     iconSize: [32, 32]
                 });
-                L.marker(latlng, {icon: icon}).addTo(map).bindPopup(`<b style="font-family:'Noto Sans KR', sans-serif;">${title}</b>`);
+                return L.marker(latlng, {icon: icon}).bindPopup(`<b style="font-family:'Noto Sans KR', sans-serif;">${title}</b>`);
             };
 
-            createMarker(spots.jejuAirport, '제주국제공항', '#f97316', '✈️');
-            createMarker(spots.shinhwa, '신화월드테마파크', '#f97316', '🎢');
-            createMarker(spots.hotel, '신신호텔 (서귀포)', '#14b8a6', '🏨');
-            createMarker(spots.mazeland, '메이즈랜드', '#3b82f6', '🌿');
-            createMarker(spots.aqua, '아쿠아플라넷 제주', '#3b82f6', '🐬');
-            createMarker(spots.seongsan, '성산일출봉', '#3b82f6', '🌅');
-            createMarker(spots.gapado, '가파도 여객터미널', '#22c55e', '🚢');
-            createMarker(spots.aerospace, '항공우주박물관', '#22c55e', '🚀');
-            createMarker(spots.osulloc, '오설록/곶자왈', '#22c55e', '🍵');
-            createMarker(spots.ecoland, '에코랜드', '#eab308', '🚂');
-            createMarker(spots.iho, '이호테우 해변', '#eab308', '🐎');
+            const markers = {
+                airport1: createMarkerObj(spots.jejuAirport, '제주국제공항 (1일차)', '#f97316', '✈️'),
+                airport4: createMarkerObj(spots.jejuAirport, '제주국제공항 (4일차)', '#eab308', '✈️'),
+                shinhwa: createMarkerObj(spots.shinhwa, '신화월드테마파크', '#f97316', '🎢'),
+                hotel1: createMarkerObj(spots.hotel, '신신호텔 (서귀포)', '#14b8a6', '🏨'),
+                hotel2: createMarkerObj(spots.hotel, '신신호텔 (서귀포)', '#14b8a6', '🏨'),
+                hotel3: createMarkerObj(spots.hotel, '신신호텔 (서귀포)', '#14b8a6', '🏨'),
+                mazeland: createMarkerObj(spots.mazeland, '메이즈랜드', '#3b82f6', '🌿'),
+                aqua: createMarkerObj(spots.aqua, '아쿠아플라넷 제주', '#3b82f6', '🐬'),
+                seongsan: createMarkerObj(spots.seongsan, '성산일출봉', '#3b82f6', '🌅'),
+                gapado: createMarkerObj(spots.gapado, '가파도 여객터미널', '#22c55e', '🚢'),
+                aerospace: createMarkerObj(spots.aerospace, '항공우주박물관', '#22c55e', '🚀'),
+                osulloc: createMarkerObj(spots.osulloc, '오설록/곶자왈', '#22c55e', '🍵'),
+                ecoland: createMarkerObj(spots.ecoland, '에코랜드', '#eab308', '🚂'),
+                iho: createMarkerObj(spots.iho, '이호테우 해변', '#eab308', '🐎')
+            };
 
-            // Fit bounds to Jeju Island
-            const bounds = L.latLngBounds(Object.values(spots));
-            map.fitBounds(bounds, { padding: [30, 30] });
+            // Paths
+            const paths = {
+                day1: L.polyline([spots.jejuAirport, spots.shinhwa, spots.hotel], { color: '#f97316', weight: 4, opacity: 0.8 }),
+                day2: L.polyline([spots.hotel, spots.mazeland, spots.aqua, spots.seongsan, spots.hotel], { color: '#3b82f6', weight: 4, opacity: 0.8 }),
+                day3: L.polyline([spots.hotel, spots.gapado, spots.aerospace, spots.osulloc, spots.hotel], { color: '#22c55e', weight: 4, opacity: 0.8 }),
+                day4: L.polyline([spots.hotel, spots.ecoland, spots.iho, spots.jejuAirport], { color: '#eab308', weight: 4, opacity: 0.8, dashArray: '5,5' })
+            };
+
+            // Group layers by day
+            dayLayers = {
+                day1: L.layerGroup([markers.airport1, markers.shinhwa, markers.hotel1, paths.day1]),
+                day2: L.layerGroup([markers.hotel2, markers.mazeland, markers.aqua, markers.seongsan, paths.day2]),
+                day3: L.layerGroup([markers.hotel3, markers.gapado, markers.aerospace, markers.osulloc, paths.day3]),
+                day4: L.layerGroup([markers.hotel3, markers.ecoland, markers.iho, markers.airport4, paths.day4])
+            };
+
+            // Initial load: show all
+            filterMap('all');
         }
+
+        // Global filter Map function
+        window.filterMap = function(day) {
+            if(!currentMap) return;
+
+            // Update button styles
+            document.querySelectorAll('.map-btn').forEach(btn => {
+                btn.classList.remove('bg-slate-800', 'text-white');
+                btn.classList.add('bg-white', 'text-slate-600');
+            });
+            const targetBtn = document.getElementById('btn-map-' + day);
+            if(targetBtn) {
+                targetBtn.classList.remove('bg-white', 'text-slate-600');
+                targetBtn.classList.add('bg-slate-800', 'text-white');
+            }
+
+            // Clear all current map layers managed by dayLayers
+            Object.values(dayLayers).forEach(layer => currentMap.removeLayer(layer));
+
+            if (day === 'all') {
+                Object.values(dayLayers).forEach(layer => layer.addTo(currentMap));
+                const bounds = L.latLngBounds(Object.values(allSpots));
+                currentMap.fitBounds(bounds, { padding: [30, 30] });
+            } else {
+                dayLayers[day].addTo(currentMap);
+                
+                let daySpots = [];
+                if(day === 'day1') daySpots = [allSpots.jejuAirport, allSpots.shinhwa, allSpots.hotel];
+                if(day === 'day2') daySpots = [allSpots.hotel, allSpots.mazeland, allSpots.aqua, allSpots.seongsan];
+                if(day === 'day3') daySpots = [allSpots.hotel, allSpots.gapado, allSpots.aerospace, allSpots.osulloc];
+                if(day === 'day4') daySpots = [allSpots.hotel, allSpots.ecoland, allSpots.iho, allSpots.jejuAirport];
+                
+                currentMap.fitBounds(L.latLngBounds(daySpots), { padding: [50, 50] });
+            }
+        };
 
         // D-Day Calculation (Target: 2026-04-21)
         const depart = new Date('2026-04-21');
